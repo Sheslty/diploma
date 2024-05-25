@@ -1,0 +1,48 @@
+s0: complete shutdown of all systems
+s1: turning on the ventilation
+s2: enable/disable air conditioning system
+s3: enable/disable humidification system
+
+ST<set_temperature>: set the temperature in Celsius
+SH<set_humidity>: set the humidity level (as a percentage)
+SF<set_fan>: set the fan speed level (as a percentage)
+
+sad<set_as_default>: current parameters of temp, hum, fan is default values now 
+
+SMt<submode_turbo>: enable/disable operation mode: turbo
+
+Mc<mode_cool>: enable/disable operation mode: cool
+Md<mode_dry>: enable/disable operation mode: dry
+Mh<mode_heat>: enable/disable operation mode: heat
+Mf<mode_fan>: enable/disable operation mode: fan
+
+
+L<lock>: blocking/unblocking parameters from changes
+R<reset>: resetting all parameters
+
+
+ld: enable/disable LED-display
+
+
+
+Request - Response format:
+<command> <parameter>
+<status> <message>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
