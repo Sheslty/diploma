@@ -7,7 +7,6 @@ ST<set_temperature>: set the temperature in Celsius
 SH<set_humidity>: set the humidity level (as a percentage)
 SF<set_fan>: set the fan speed level (as a percentage)
 
-sad<set_as_default>: current parameters of temp, hum, fan is default values now 
 
 SMt<submode_turbo>: enable/disable operation mode: turbo
 
