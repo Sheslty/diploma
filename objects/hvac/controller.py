@@ -1,25 +1,8 @@
 import json
 import logging
 import socket
-import sys
-from pathlib import Path
-import os
-
-
-def delete_file(file_path: str) -> None:
-    try:
-        os.remove(file_path)
-        print(f"Файл {file_path} успешно удален.")
-    except Exception as e:
-        print(f"Произошла ошибка при удалении файла: {e}")
-
-
-def check_file_exists(file_path: str) -> bool:
-    try:
-        return Path(file_path).is_file()
-    except Exception as e:
-        print(e)
-        return False
+from multiprocessing import Process
+from threading import Timer
 
 
 def read_json(filename: str) -> dict:
@@ -295,31 +278,48 @@ def logger_init():
     logging.basicConfig(level=logging.DEBUG, filename="file.log",
                         filemode="a", format=fmt)
 
+def handle_client(conn, addr):
+    with conn:
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                logging.info(f"Client {addr} disconnected")
+                break
+            logging.info(f"Received from {addr}: {data.decode()}")
+            response = "Hi"
+            conn.sendall(response.encode())
+    logging.info(f"Connection with {addr} closed")
 
-def start_server():
+def start_server(timeout = 60):
     logger_init()
     ventilation_system = VentilationSystem()
     host = 'localhost'
-    port = 57417
+    port = 0
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.bind((host, port))
         logging.info(f"Server started and listening on {host}:{server_socket.getsockname()[1]}")
         server_socket.listen()
-        conn, addr = server_socket.accept()
-        whilte
-        with conn:
-            logging.info(f"Connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    logging.info("Client disconnect")
-                    break
-                decoded_data = data.decode()
-                logging.info(f"Received: {decoded_data}")
-                conn.sendall('Hi'.encode())
-                # response = command_handler(ventilation_system, decoded_data)
-                # conn.sendall(response.encode())
-    logging.info("Server shutting down")
+
+        def shutdown_server():
+            logging.info("No connections received. Server shutting down...")
+            server_socket.close()
+            exit(0)
+
+        timer = Timer(timeout, shutdown_server)
+        timer.start()
+
+        while True:
+            try:
+                conn, addr = server_socket.accept()
+                process = Process(target=handle_client, args=(conn, addr))
+                process.start()
+                conn.close()
+
+                timer = Timer(timeout, shutdown_server)
+                timer.start()
+            except socket.error as e:
+                logging.error(e)
+                break
 
 
 if __name__ == "__main__":
