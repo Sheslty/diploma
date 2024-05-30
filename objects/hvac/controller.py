@@ -1,25 +1,6 @@
 import json
 import logging
-import socket
-import sys
-from pathlib import Path
-import os
-
-
-def delete_file(file_path: str) -> None:
-    try:
-        os.remove(file_path)
-        print(f"Файл {file_path} успешно удален.")
-    except Exception as e:
-        print(f"Произошла ошибка при удалении файла: {e}")
-
-
-def check_file_exists(file_path: str) -> bool:
-    try:
-        return Path(file_path).is_file()
-    except Exception as e:
-        print(e)
-        return False
+import socketserver
 
 
 def read_json(filename: str) -> dict:
@@ -196,7 +177,7 @@ class VentilationSystem:
             self._ventilation = self._last_ventilation_state
 
         else:
-            params = self._modes["mode"][mode_name]
+            params = self._modes[mode_name]
             self._last_ventilation_state = self._ventilation
             self._mode = mode_name
             if mode_name == "fan":
@@ -206,15 +187,13 @@ class VentilationSystem:
                 self._ventilation.sensors = VentilationSystemSensors(
                     temperature=params["temperature"],
                     fan_speed=params["humidity"],
-                    humidity=params["fan"]
+                    humidity=params["fan_speed"]
                 )
 
     def lock(self):
         self._locked = not self._locked
 
     def reset(self):
-        if self._locked:
-            raise Exception("ERR System is locked.")
         self.__init__()
 
     def get_led_display(self):
@@ -287,40 +266,52 @@ def command_handler(system: VentilationSystem, cmd: str,
             case _:
                 return "ERR Unknown command"
     except Exception as e:
-        return e
+        return str(e.args[0])
 
 
 def logger_init():
     fmt = '[%(asctime)s] [pid:%(process)-5d] [tid::%(thread)-5d] [module:%(module)s] [line:%(lineno)-3s] %(levelname)-8s %(message)s'
     logging.basicConfig(level=logging.DEBUG, filename="file.log",
-                        filemode="a", format=fmt)
+                        filemode="w", format=fmt)
+
+class ConnectionHandler(socketserver.BaseRequestHandler):
+    def handle(self):
+        logging.debug(f"Connected by {self.client_address}")
+        while True:
+            try:
+                data = self.request.recv(1024)
+            except ConnectionError:
+                logging.warning(f"Client suddenly closed while receiving")
+                break
+            if not data:
+                break
+            # Process
+            data = data.decode()
+            try:
+                response = command_handler(SYSTEM, data)
+                response = response.encode()
+            except Exception as e:
+                print(f"Somth wrong {e} \n {response}")
+                break
+            try:
+                self.request.sendall(response)
+            except ConnectionError:
+                logging.warning(f"Client suddenly closed, cannot send")
+                break
+        logging.debug(f"Disconnected by {self.client_address}")
 
 
 def start_server():
     logger_init()
-    ventilation_system = VentilationSystem()
     host = 'localhost'
     port = 57417
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-        server_socket.bind((host, port))
-        logging.info(f"Server started and listening on {host}:{server_socket.getsockname()[1]}")
-        server_socket.listen()
-        conn, addr = server_socket.accept()
-        whilte
-        with conn:
-            logging.info(f"Connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    logging.info("Client disconnect")
-                    break
-                decoded_data = data.decode()
-                logging.info(f"Received: {decoded_data}")
-                conn.sendall('Hi'.encode())
-                # response = command_handler(ventilation_system, decoded_data)
-                # conn.sendall(response.encode())
-    logging.info("Server shutting down")
-
+    try:
+        with socketserver.ThreadingTCPServer((host, port), ConnectionHandler) as server:
+            logging.info(f"Server started and listening on {host}:{port}")
+            server.serve_forever()
+    except KeyboardInterrupt:
+        exit()
 
 if __name__ == "__main__":
+    SYSTEM = VentilationSystem()
     start_server()
