@@ -304,7 +304,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 def start_server():
     logger_init()
     host = 'localhost'
-    port = 57417
+    port = 0
     try:
         with socketserver.ThreadingTCPServer((host, port), ConnectionHandler) as server:
             logging.info(f"Server started and listening on {host}:{port}")
