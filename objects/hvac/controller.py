@@ -169,25 +169,26 @@ class VentilationSystem:
     def change_mode(self, mode_name):
         if self._locked:
             raise Exception("ERR System is locked.")
-        if self._mode and self._mode != mode_name:
-            raise Exception(f"ERR Other mode is already used.")
+        if self._mode:
+            if self._mode != mode_name:
+                raise Exception(f"ERR Other mode is already used.")
 
-        if mode_name == self._mode:
-            self._mode = None
-            self._ventilation = self._last_ventilation_state
+            else:
+                self._mode = None
+                self._ventilation = self._last_ventilation_state
 
         else:
-            params = self._modes[mode_name]
             self._last_ventilation_state = self._ventilation
             self._mode = mode_name
             if mode_name == "fan":
+                self._ventilation.ventilation_on = True
                 self._ventilation.humidifier_on = False
                 self._ventilation.conditioner_on = False
             else:
                 self._ventilation.sensors = VentilationSystemSensors(
-                    temperature=params["temperature"],
-                    fan_speed=params["humidity"],
-                    humidity=params["fan_speed"]
+                    temperature=self._modes[mode_name]["temperature"],
+                    fan_speed=self._modes[mode_name]["humidity"],
+                    humidity=self._modes[mode_name]["fan_speed"]
                 )
 
     def lock(self):
@@ -206,10 +207,10 @@ class VentilationSystem:
         self._last_ventilation_state.led_display = self._ventilation.led_display
 
     def info(self):
-        return {"mode": self._mode,
+        return json.dumps({"mode": self._mode,
                 "is_locked": self._locked,
                 "turbo_mode": self._fan_mode_turbo,
-                "ventilation": self._ventilation.to_dict()}
+                "ventilation": self._ventilation.to_dict()})
 
 
 def command_handler(system: VentilationSystem, cmd: str,
@@ -262,12 +263,11 @@ def command_handler(system: VentilationSystem, cmd: str,
                 system.led_display()
                 return f"OK LED display {'enabled' if system.get_led_display() else 'disabled'}."
             case 'I':
-                return str(system.info())
+                return system.info()
             case _:
                 return "ERR Unknown command"
     except Exception as e:
         return str(e.args[0])
-
 
 def logger_init():
     fmt = '[%(asctime)s] [pid:%(process)-5d] [tid::%(thread)-5d] [module:%(module)s] [line:%(lineno)-3s] %(levelname)-8s %(message)s'
@@ -315,3 +315,13 @@ def start_server():
 if __name__ == "__main__":
     SYSTEM = VentilationSystem()
     start_server()
+
+    # while True:
+    #     command = input(">").split()
+    #     if len(command) == 2:
+    #         print(command_handler(SYSTEM, command[0], int(command[1])))
+    #     else:
+    #         print(command_handler(SYSTEM, command[0]))
+
+    # info = command_handler(SYSTEM, "I")
+    # print(json.loads(info))
