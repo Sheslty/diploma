@@ -1,20 +1,11 @@
 import json
 import logging
-import socketserver
 
 
 def read_json(filename: str) -> dict:
     try:
         with open(filename, "r") as f:
             return json.load(f)
-    except FileNotFoundError as e:
-        print(e)
-
-
-def save_json(data: dict, filename: str) -> None:
-    try:
-        with open(filename, "w") as f:
-            json.dump(data, f)
     except FileNotFoundError as e:
         print(e)
 

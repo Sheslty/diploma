@@ -1,7 +1,6 @@
 from aalpy.base import SUL
 from aalpy.oracles import RandomWalkEqOracle
 from aalpy.learning_algs import run_Lstar
-
 from objects.hvac.controller import VentilationSystemController, command_handler
 
 
