@@ -55,7 +55,7 @@ class WorkingVentilationElements:
         }
 
 
-class VentilationSystem:
+class VentilationSystemController:
     config_filename = "config.json"
 
     def __init__(self):
@@ -195,7 +195,13 @@ class VentilationSystem:
         self._locked = not self._locked
 
     def reset(self):
-        self.__init__()
+        self._mode = None
+        self._locked = False
+        self._fan_mode_turbo = False
+
+        self._ventilation = WorkingVentilationElements()
+        self._ventilation.sensors = self.default_sensors_settings
+        self._last_ventilation_state = WorkingVentilationElements()
 
     def get_led_display(self):
         return self._ventilation.led_display
@@ -213,7 +219,7 @@ class VentilationSystem:
                 "ventilation": self._ventilation.to_dict()})
 
 
-def command_handler(system: VentilationSystem, cmd: str,
+def command_handler(system: VentilationSystemController, cmd: str,
                     val: int = None) -> str:
     try:
         match cmd:
@@ -269,59 +275,20 @@ def command_handler(system: VentilationSystem, cmd: str,
     except Exception as e:
         return str(e.args[0])
 
+
 def logger_init():
-    fmt = '[%(asctime)s] [pid:%(process)-5d] [tid::%(thread)-5d] [module:%(module)s] [line:%(lineno)-3s] %(levelname)-8s %(message)s'
+    fmt = '[%(asctime)s] %(levelname)-8s %(message)s'
     logging.basicConfig(level=logging.DEBUG, filename="file.log",
                         filemode="w", format=fmt)
 
-class ConnectionHandler(socketserver.BaseRequestHandler):
-    def handle(self):
-        logging.debug(f"Connected by {self.client_address}")
-        while True:
-            try:
-                data = self.request.recv(1024)
-            except ConnectionError:
-                logging.warning(f"Client suddenly closed while receiving")
-                break
-            if not data:
-                break
-            # Process
-            data = data.decode()
-            try:
-                response = command_handler(SYSTEM, data)
-                response = response.encode()
-            except Exception as e:
-                print(f"Somth wrong {e} \n {response}")
-                break
-            try:
-                self.request.sendall(response)
-            except ConnectionError:
-                logging.warning(f"Client suddenly closed, cannot send")
-                break
-        logging.debug(f"Disconnected by {self.client_address}")
-
-
-def start_server():
-    logger_init()
-    host = 'localhost'
-    port = 0
-    try:
-        with socketserver.ThreadingTCPServer((host, port), ConnectionHandler) as server:
-            logging.info(f"Server started and listening on {host}:{port}")
-            server.serve_forever()
-    except KeyboardInterrupt:
-        exit()
 
 if __name__ == "__main__":
-    SYSTEM = VentilationSystem()
-    start_server()
+    logger_init()
+    SYSTEM = VentilationSystemController()
 
-    # while True:
-    #     command = input(">").split()
-    #     if len(command) == 2:
-    #         print(command_handler(SYSTEM, command[0], int(command[1])))
-    #     else:
-    #         print(command_handler(SYSTEM, command[0]))
-
-    # info = command_handler(SYSTEM, "I")
-    # print(json.loads(info))
+    while True:
+        command = input(">").split()
+        if len(command) == 2:
+            logging.info(command_handler(SYSTEM, command[0], int(command[1])))
+        else:
+            logging.info(command_handler(SYSTEM, command[0]))
