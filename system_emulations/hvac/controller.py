@@ -210,8 +210,8 @@ class VentilationSystemController:
                 "ventilation": self._ventilation.to_dict()})
 
 
-def command_handler(system: VentilationSystemController, cmd: str,
-                    val: int = None) -> str:
+def hvac_command_handler(system: VentilationSystemController, cmd: str,
+                         val: int = None) -> str:
     try:
         match cmd:
             case 's0':
@@ -280,6 +280,6 @@ if __name__ == "__main__":
     while True:
         command = input(">").split()
         if len(command) == 2:
-            logging.info(command_handler(SYSTEM, command[0], int(command[1])))
+            logging.info(hvac_command_handler(SYSTEM, command[0], int(command[1])))
         else:
-            logging.info(command_handler(SYSTEM, command[0]))
+            logging.info(hvac_command_handler(SYSTEM, command[0]))

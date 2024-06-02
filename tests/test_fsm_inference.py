@@ -2,8 +2,8 @@ from aalpy import run_non_det_Lstar
 from aalpy.base import SUL
 from aalpy.oracles import RandomWalkEqOracle
 from aalpy.learning_algs import run_Lstar, run_KV
-from systems.hvac.controller import VentilationSystemController, command_handler
-from systems.microfluidic_flow_control.controller import MicrofluidicSystem, microfluidic_system_command_handler
+from system_emulations.hvac.controller import VentilationSystemController, hvac_command_handler
+from system_emulations.microfluidic_flow_control.controller import MicrofluidicSystem, microfluidic_system_command_handler
 
 
 class HVACSystemSUL(SUL):
@@ -11,19 +11,13 @@ class HVACSystemSUL(SUL):
         super().__init__()
         self.hvac_system = VentilationSystemController()
 
-    # Инициализирует или сбрасывает систему в начальное состояние.
-    # Это вызывается перед началом каждой новой серии входов в рамках тестирования или обучения.
     def pre(self):
-        command_handler(self.hvac_system, 'r')
+        hvac_command_handler(self.hvac_system, 'r')
 
-    # Получает входной символ, обрабатывает его и возвращает выход.
-    # Этот метод должен моделировать, как система реагирует на каждый вход.
     def step(self, command):
-        response = command_handler(self.hvac_system, command) if command else command_handler(self.hvac_system, 'r')
+        response = hvac_command_handler(self.hvac_system, command) if command else hvac_command_handler(self.hvac_system, 'r')
         return response
 
-    # Очищает или завершает текущую сессию работы с системой.
-    # Может использоваться для освобождения ресурсов или закрытия соединений.
     def post(self):
         pass
 
