@@ -16,7 +16,7 @@ class Reservoir:
         self._filled_in = value
 
 
-class MicrofluidicSystem:
+class ReservoirSystem:
     def __init__(self):
         self._reservoirs = [Reservoir(), Reservoir(), Reservoir()]
         self._current_reservoir_id = None
@@ -49,7 +49,7 @@ class MicrofluidicSystem:
         return "The reservoir is already empty"
 
 
-def microfluidic_system_command_handler(system: MicrofluidicSystem, command: str) -> str:
+def reservoir_system_command_handler(system: ReservoirSystem, command: str) -> str:
     match command:
         case "fill":
             return system.fill_reservoir()
@@ -64,8 +64,8 @@ def microfluidic_system_command_handler(system: MicrofluidicSystem, command: str
 
 
 if __name__ == "__main__":
-    system = MicrofluidicSystem()
+    system = ReservoirSystem()
 
     while True:
         command = input(">")
-        print(microfluidic_system_command_handler(system, command))
+        print(reservoir_system_command_handler(system, command))
