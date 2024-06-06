@@ -46,7 +46,7 @@ class WorkingVentilationElements:
         }
 
 
-class VentilationSystemController:
+class SplitSystemController:
     config_filename = "config.json"
 
     def __init__(self):
@@ -210,8 +210,8 @@ class VentilationSystemController:
                 "ventilation": self._ventilation.to_dict()})
 
 
-def command_handler(system: VentilationSystemController, cmd: str,
-                    val: int = None) -> str:
+def split_system_command_handler(system: SplitSystemController, cmd: str,
+                                 val: int = None) -> str:
     try:
         match cmd:
             case 's0':
@@ -275,11 +275,11 @@ def logger_init():
 
 if __name__ == "__main__":
     logger_init()
-    SYSTEM = VentilationSystemController()
+    SYSTEM = SplitSystemController()
 
     while True:
         command = input(">").split()
         if len(command) == 2:
-            logging.info(command_handler(SYSTEM, command[0], int(command[1])))
+            logging.info(split_system_command_handler(SYSTEM, command[0], int(command[1])))
         else:
-            logging.info(command_handler(SYSTEM, command[0]))
+            logging.info(split_system_command_handler(SYSTEM, command[0]))
