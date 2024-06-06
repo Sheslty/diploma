@@ -1,0 +1,1 @@
+PATH_TO_RESULTS_DIR = "../../out_files/"
