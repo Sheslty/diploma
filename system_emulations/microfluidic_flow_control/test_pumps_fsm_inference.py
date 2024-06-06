@@ -6,7 +6,6 @@ from system_emulations.test_sul import PumpsSystemSUL
 
 seed()
 
-
 def main():
     alphabet = ['change_flow_speed_pos', 'change_flow_speed_neg',
                 'change_flow_speed_zero', 'change_mode_sync',
@@ -29,8 +28,10 @@ def main():
                               max_learning_rounds=10)
 
     learned_model.save(
-        PATH_TO_RESULTS_DIR + "Pumps_L_dfa" + "_" + closing_strat + "_" + cex_proc)
+        PATH_TO_RESULTS_DIR.joinpath("Pumps_L_dfa" + "_" + closing_strat + "_" + cex_proc))
 
 
 if __name__ == "__main__":
+    if not PATH_TO_RESULTS_DIR.exists():
+        PATH_TO_RESULTS_DIR.mkdir(parents=True)
     main()
