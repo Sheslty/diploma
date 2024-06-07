@@ -1,7 +1,7 @@
 from aalpy.base import SUL
-from system_emulations.air_flow_control.split_system_controller import SplitSystemController, split_system_command_handler
-from system_emulations.microfluidic_flow_control.reservoir_controller import ReservoirSystem, reservoir_system_command_handler
-from system_emulations.microfluidic_flow_control.pumps_controller import \
+from system_emulations.split_system.split_system_controller import SplitSystemController, split_system_command_handler
+from system_emulations.reservoir_filling_system.reservoir_controller import ReservoirSystem, reservoir_system_command_handler
+from system_emulations.pump_transfer_system.pumps_controller import \
     PumpsController, pumps_system_command_handler
 from random import seed, randint
 
