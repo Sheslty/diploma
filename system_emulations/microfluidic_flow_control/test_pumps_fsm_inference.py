@@ -19,7 +19,7 @@ def main():
     eq_oracle = RandomWalkEqOracle(alphabet=alphabet, sul=sul, num_steps=1000,
                                    reset_prob=0.1)
     learned_model = run_Lstar(alphabet=alphabet, sul=sul, eq_oracle=eq_oracle,
-                              automaton_type='moore',
+                              automaton_type='dfa',
                               closing_strategy=closing_strat,
                               cex_processing=cex_proc,
                               e_set_suffix_closed=False,
@@ -29,6 +29,21 @@ def main():
 
     learned_model.save(
         PATH_TO_RESULTS_DIR.joinpath("Pumps_L_dfa" + "_" + closing_strat + "_" + cex_proc))
+
+    sul = PumpsSystemSUL()
+    eq_oracle = RandomWalkEqOracle(alphabet=alphabet, sul=sul, num_steps=1000,
+                                   reset_prob=0.1)
+    learned_model = run_Lstar(alphabet=alphabet, sul=sul, eq_oracle=eq_oracle,
+                              automaton_type='moore',
+                              closing_strategy=closing_strat,
+                              cex_processing=cex_proc,
+                              e_set_suffix_closed=False,
+                              all_prefixes_in_obs_table=False,
+                              cache_and_non_det_check=True,
+                              max_learning_rounds=10)
+
+    learned_model.save(
+        PATH_TO_RESULTS_DIR.joinpath("Pumps_L_moore" + "_" + closing_strat + "_" + cex_proc))
 
 
 if __name__ == "__main__":
