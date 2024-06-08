@@ -48,24 +48,26 @@ class PumpsSystemSUL(SUL):
 
     def step(self, letter):
         _id = randint(0, 3)
-        value = randint(1, 100)
+        valid_value = randint(0, 100)
+        invalid_value = randint(101, 1000)
         match letter:
-            case "change_flow_speed_pos":
-                return pumps_system_command_handler(self.system, _id, '-f', value)
-            case "change_flow_speed_neg":
-                return pumps_system_command_handler(self.system, _id, '-f', -value)
-            case "change_flow_speed_zero":
+            case "change flow speed from 1 to 100":
+                return pumps_system_command_handler(self.system, _id, '-f', valid_value)
+            case "change flow speed from -100 to -1":
+                return pumps_system_command_handler(self.system, _id, '-f', -valid_value)
+            case "change flow speed from 101 to inf":
+                return pumps_system_command_handler(self.system, _id, '-f', invalid_value)
+            case "change flow speed from -inf to -101":
+                return pumps_system_command_handler(self.system, _id, '-f', -invalid_value)
+            case "change flow speed zero":
                 return pumps_system_command_handler(self.system, _id, '-f', 0)
-
-            case "change_mode_sync":
+            case "change mode sync":
                 return pumps_system_command_handler(self.system, _id, '-m', 'sync')
-
-            case "change_mode_async":
+            case "change mode async":
                 return pumps_system_command_handler(self.system, _id, '-m', 'async')
-
-            case "turn_on":
+            case "turn on":
                 return pumps_system_command_handler(self.system, _id, '-s', True)
-            case "turn_off":
+            case "turn off":
                 return pumps_system_command_handler(self.system, _id, '-s', False)
             case _:
                 return "Unknown command"

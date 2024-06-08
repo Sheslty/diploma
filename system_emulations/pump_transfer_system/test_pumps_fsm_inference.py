@@ -7,9 +7,10 @@ from system_emulations.test_sul import PumpsSystemSUL
 seed()
 
 def main():
-    alphabet = ['change_flow_speed_pos', 'change_flow_speed_neg',
-                'change_flow_speed_zero', 'change_mode_sync',
-                'change_mode_async', 'turn_on', 'turn_off']
+    alphabet = ["change flow speed from 1 to 100", "change flow speed from -100 to -1",
+                "change flow speed from 101 to inf", "change flow speed from -inf to -101"
+                'change flow speed zero', 'change mode sync',
+                'change mode async', 'turn on', 'turn off']
     cex_proc = choice(['rs', 'longest_prefix', 'longest_prefix',
                        'linear_fwd', 'linear_bwd',
                        'exponential_fwd', 'exponential_bwd'])
