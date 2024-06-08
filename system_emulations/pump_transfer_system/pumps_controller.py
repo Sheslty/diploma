@@ -61,17 +61,15 @@ class PumpsController:
 
     def _set_pump_current_volume(self, pump_id: int, volume: int) -> None:
         if not isinstance(volume, int):
-            raise ValueError("current_volume must be an integer")
+            raise ValueError("current volume must be an integer")
         if not 0 <= volume <= 100:
-            raise ValueError("current_volume must be in the range from 0 to 100")
+            raise ValueError("current volume must be in the range from 0 to 100")
         self._pumps[pump_id].current_volume = volume
 
     def set_pump_flow_speed(self, pump_id: int, flow_speed: int) -> None:
-        if not isinstance(flow_speed, int):
-            raise ValueError("flow_speed must be an integer")
-        if not -100 <= flow_speed <= 100:
+        if not -100 <= flow_speed <= 100 or not isinstance(flow_speed, int):
             raise ValueError(
-                "flow_speed must be in the range from -100 to 100")
+                "flow speed must be an integer in the range from -100 to 100")
         self._pumps[pump_id].flow_speed = flow_speed
 
     def set_pump_status(self, pump_id: int, value: bool) -> None:
@@ -81,7 +79,7 @@ class PumpsController:
 
     def set_pump_operating_mode(self, pump_id: int, mode: str) -> None:
         if mode not in ["async", "sync"]:
-            raise ValueError('operating_mode must be either "async" or "sync"')
+            raise ValueError('operating mode must be either "async" or "sync"')
         if mode == 'sync':
             self.synced_pumps_id.add(pump_id)
         elif pump_id in self.get_sync_pumps_ids():
@@ -104,12 +102,12 @@ class PumpsController:
 
 def pumps_system_command_handler(system: PumpsController, _id: int, cmd: str, value: Union[str, int, bool]):
     if _id not in system.get_pumps_ids():
-        return "Invalid id"
+        return "Invalid pump id"
     try:
         match cmd:
             case '-m':
                 system.set_pump_operating_mode(_id, value)
-                return "Operating mode has been successfully changed"
+                return "Operating mode successfully changed"
             case "-f":
                 system.set_pump_flow_speed(_id, value)
                 return "Flow speed successfully changed"
